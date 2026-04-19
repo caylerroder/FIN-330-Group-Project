@@ -253,19 +253,59 @@ st.pyplot(fig3)
 
 # Step 6: Interpretation
 st.subheader("Step 6 — Interpretation")
+
+# --- Returns comparison ---
+r1, r2, r3 = st.columns(3)
+r1.metric("Portfolio Return",    f"{portfolio_total:.2%}")
+r2.metric("Benchmark Return",    f"{benchmark_total:.2%}")
+r3.metric("Outperformance",      f"{outperf:+.2%}",
+          "Above benchmark" if outperf >= 0 else "Below benchmark")
+
 if outperf > 0:
-    st.success(f"The portfolio **outperformed** the S&P 500 by {outperf:.2%}.")
+    st.success(f"The portfolio **outperformed** the S&P 500 by **{outperf:.2%}** "
+               f"({portfolio_total:.2%} portfolio vs {benchmark_total:.2%} benchmark).")
 else:
-    st.error(f"The portfolio **underperformed** the S&P 500 by {abs(outperf):.2%}.")
+    st.error(f"The portfolio **underperformed** the S&P 500 by **{abs(outperf):.2%}** "
+             f"({portfolio_total:.2%} portfolio vs {benchmark_total:.2%} benchmark).")
+
+st.markdown("---")
+
+# --- Volatility comparison ---
+v1, v2, v3 = st.columns(3)
+v1.metric("Portfolio Volatility",  f"{overall_vol:.2%}")
+v2.metric("Benchmark Volatility",  f"{benchmark_vol:.2%}")
+vol_diff = overall_vol - benchmark_vol
+v3.metric("Volatility Difference", f"{vol_diff:+.2%}",
+          "More risky" if vol_diff > 0 else "Less risky")
 
 if overall_vol > benchmark_vol:
-    st.warning(f"The portfolio was **more volatile** than the benchmark ({overall_vol:.2%} vs {benchmark_vol:.2%}).")
+    st.warning(f"The portfolio was **more volatile** (riskier) than the S&P 500 — "
+               f"**{overall_vol:.2%}** vs **{benchmark_vol:.2%}** "
+               f"({vol_diff:+.2%} difference).")
 else:
-    st.info(f"The portfolio was **less volatile** than the benchmark ({overall_vol:.2%} vs {benchmark_vol:.2%}).")
+    st.info(f"The portfolio was **less volatile** (less risky) than the S&P 500 — "
+            f"**{overall_vol:.2%}** vs **{benchmark_vol:.2%}** "
+            f"({vol_diff:+.2%} difference).")
+
+st.markdown("---")
+
+# --- Sharpe ratio comparison ---
+s1, s2, s3 = st.columns(3)
+s1.metric("Portfolio Sharpe Ratio",  f"{portfolio_sharpe:.2f}")
+s2.metric("Benchmark Sharpe Ratio",  f"{benchmark_sharpe:.2f}")
+sharpe_diff = portfolio_sharpe - benchmark_sharpe
+s3.metric("Sharpe Difference", f"{sharpe_diff:+.2f}",
+          "More efficient" if sharpe_diff > 0 else "Less efficient")
 
 if portfolio_sharpe > benchmark_sharpe:
-    st.success(f"The portfolio was **more efficient** — Sharpe ratio {portfolio_sharpe:.2f} vs benchmark {benchmark_sharpe:.2f}.")
+    st.success(f"The portfolio was **more efficient** than the benchmark — "
+               f"Sharpe ratio **{portfolio_sharpe:.2f}** vs **{benchmark_sharpe:.2f}**, "
+               f"meaning it generated better return per unit of risk.")
 elif portfolio_sharpe > 0:
-    st.warning(f"Positive Sharpe ratio ({portfolio_sharpe:.2f}) but less efficient than benchmark ({benchmark_sharpe:.2f}).")
+    st.warning(f"The portfolio had a positive Sharpe ratio (**{portfolio_sharpe:.2f}**) but was "
+               f"**less efficient** than the benchmark (**{benchmark_sharpe:.2f}**) — "
+               f"the benchmark generated more return per unit of risk.")
 else:
-    st.error(f"Negative Sharpe ratio ({portfolio_sharpe:.2f}) — returns did not compensate for the risk taken.")
+    st.error(f"The portfolio had a **negative Sharpe ratio** (**{portfolio_sharpe:.2f}**) vs "
+             f"benchmark (**{benchmark_sharpe:.2f}**) — returns did not compensate for the risk taken.")
+
