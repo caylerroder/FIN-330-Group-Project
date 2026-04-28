@@ -6,17 +6,17 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="FIN 330 Group Project", page_icon="📈", layout="wide")
-st.title("📈 FIN 330 — Stock Analytics & Portfolio Dashboard")
+st.title("📈 Stock Analytics & Portfolio Dashboard")
 
 # ============================================================
 #  SIDEBAR — inputs for both parts
 # ============================================================
 with st.sidebar:
-    st.header("Part 1 — Stock")
+    st.header("Individual Stock Analysis")
     ticker = st.text_input("Ticker", value="LMT").upper().strip()
 
     st.markdown("---")
-    st.header("Part 2 — Portfolio")
+    st.header("Portfolio")
     st.caption("Add or remove stocks. Weights must sum to 1.0")
 
     # Initialize session state with default 5 stocks
@@ -75,7 +75,7 @@ if not run:
 # ============================================================
 #  PART 1 — INDIVIDUAL STOCK ANALYSIS
 # ============================================================
-st.header("Part 1 — Individual Stock Analysis")
+st.header("Individual Stock Analysis")
 st.subheader(f"Ticker: {ticker}")
 
 # Step 1: Data Collection
@@ -207,7 +207,7 @@ st.pyplot(fig2)
 #  PART 2 — PORTFOLIO PERFORMANCE DASHBOARD
 # ============================================================
 st.markdown("---")
-st.header("Part 2 — Portfolio Performance Dashboard")
+st.header("Portfolio Performance Dashboard")
 
 portfolio = {
     s["ticker"]: s["weight"]
