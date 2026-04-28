@@ -281,7 +281,7 @@ plt.tight_layout()
 st.pyplot(fig3)
 
 # Step 6: Interpretation
-st.subheader("Step 6 — Interpretation")
+st.subheader("Interpretation")
 
 # --- Returns comparison ---
 r1, r2, r3 = st.columns(3)
