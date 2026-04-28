@@ -16,30 +16,54 @@ with st.sidebar:
 
     st.markdown("---")
     st.header("Part 2 — Portfolio")
-    st.caption("Enter any 5 tickers. Weights must sum to 1.0")
+    st.caption("Add or remove stocks. Weights must sum to 1.0")
 
-    col_t, col_w = st.columns([1, 1])
+    # Initialize session state with default 5 stocks
+    if "portfolio_stocks" not in st.session_state:
+        st.session_state.portfolio_stocks = [
+            {"ticker": "AAPL",  "weight": 0.20},
+            {"ticker": "MSFT",  "weight": 0.20},
+            {"ticker": "NVDA",  "weight": 0.20},
+            {"ticker": "GOOGL", "weight": 0.20},
+            {"ticker": "AMZN",  "weight": 0.20},
+        ]
+
+    # Add stock button
+    if st.button("➕ Add Stock", use_container_width=True):
+        st.session_state.portfolio_stocks.append({"ticker": "", "weight": 0.0})
+
+    # Render each stock row with a remove button
+    col_t, col_w, col_r = st.columns([2, 2, 1])
     col_t.markdown("**Ticker**")
     col_w.markdown("**Weight**")
+    col_r.markdown("**Remove**")
 
-    t1 = col_t.text_input("t1", value="AAPL",  label_visibility="collapsed").upper().strip()
-    w1 = col_w.number_input("w1", min_value=0.0, max_value=1.0, value=0.20, step=0.05, label_visibility="collapsed")
+    to_remove = None
+    for i, stock in enumerate(st.session_state.portfolio_stocks):
+        col_t, col_w, col_r = st.columns([2, 2, 1])
+        stock["ticker"] = col_t.text_input(
+            f"ticker_{i}", value=stock["ticker"],
+            label_visibility="collapsed"
+        ).upper().strip()
+        stock["weight"] = col_w.number_input(
+            f"weight_{i}", min_value=0.0, max_value=1.0,
+            value=float(stock["weight"]), step=0.05,
+            label_visibility="collapsed"
+        )
+        if col_r.button("🗑️", key=f"remove_{i}"):
+            to_remove = i
 
-    t2 = col_t.text_input("t2", value="MSFT",  label_visibility="collapsed").upper().strip()
-    w2 = col_w.number_input("w2", min_value=0.0, max_value=1.0, value=0.20, step=0.05, label_visibility="collapsed")
+    # Remove stock if delete button was clicked
+    if to_remove is not None:
+        st.session_state.portfolio_stocks.pop(to_remove)
+        st.rerun()
 
-    t3 = col_t.text_input("t3", value="NVDA",  label_visibility="collapsed").upper().strip()
-    w3 = col_w.number_input("w3", min_value=0.0, max_value=1.0, value=0.20, step=0.05, label_visibility="collapsed")
-
-    t4 = col_t.text_input("t4", value="GOOGL", label_visibility="collapsed").upper().strip()
-    w4 = col_w.number_input("w4", min_value=0.0, max_value=1.0, value=0.20, step=0.05, label_visibility="collapsed")
-
-    t5 = col_t.text_input("t5", value="AMZN",  label_visibility="collapsed").upper().strip()
-    w5 = col_w.number_input("w5", min_value=0.0, max_value=1.0, value=0.20, step=0.05, label_visibility="collapsed")
-
-    total_w = round(w1 + w2 + w3 + w4 + w5, 2)
+    # Weight validation
+    total_w = round(sum(s["weight"] for s in st.session_state.portfolio_stocks), 2)
     if total_w != 1.0:
         st.warning(f"Weights sum to {total_w} — must equal 1.0")
+    else:
+        st.success("Weights sum to 1.0 ✅")
 
     run = st.button("Run Analysis", type="primary", use_container_width=True)
 
@@ -184,7 +208,11 @@ st.pyplot(fig2)
 st.markdown("---")
 st.header("Part 2 — Portfolio Performance Dashboard")
 
-portfolio = {t1: w1, t2: w2, t3: w3, t4: w4, t5: w5}
+portfolio = {
+    s["ticker"]: s["weight"]
+    for s in st.session_state.portfolio_stocks
+    if s["ticker"]  # skip any empty ticker rows
+}
 
 end_date   = pd.Timestamp.now().normalize()
 start_date = end_date - pd.DateOffset(years=1)
@@ -252,7 +280,7 @@ plt.tight_layout()
 st.pyplot(fig3)
 
 # Step 6: Interpretation
-st.subheader("Interpretation")
+st.subheader("Step 6 — Interpretation")
 
 # --- Returns comparison ---
 r1, r2, r3 = st.columns(3)
@@ -308,4 +336,5 @@ elif portfolio_sharpe > 0:
 else:
     st.error(f"The portfolio had a **negative Sharpe ratio** (**{portfolio_sharpe:.2f}**) vs "
              f"benchmark (**{benchmark_sharpe:.2f}**) — returns did not compensate for the risk taken.")
+
 
